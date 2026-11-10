@@ -237,6 +237,11 @@ main.container{padding-top:20px;padding-bottom:64px}
 .card-header-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .card-header-text{display:grid;gap:4px;min-width:0}
 .help-btn{flex:none;gap:6px}
+.guide .notice{display:grid;grid-template-columns:auto 1fr;gap:10px;border:1px solid hsl(var(--border));border-radius:var(--radius);padding:12px 14px;background:hsl(var(--muted) / .5)}
+.guide .notice>.icon{margin-top:3px;color:hsl(var(--foreground))}
+.guide .notice>div{display:grid;gap:6px}
+.link{background:none;border:0;padding:0;font:inherit;color:hsl(var(--foreground));text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.app-disclaimer{margin:16px 0 0;font-size:12px;line-height:1.5;color:hsl(var(--muted-foreground));text-align:center}
 .guide .example{border:1px solid hsl(var(--border));border-radius:var(--radius);padding:12px 14px;display:grid;gap:8px;background:hsl(var(--muted) / .5)}
 .guide .example dt{font-size:12px;font-weight:600;color:hsl(var(--muted-foreground))}
 .guide .example dd{margin:0}
@@ -414,7 +419,7 @@ main.container{padding-top:20px;padding-bottom:64px}
         <h1>Registro de comportamento</h1>
       </div>
       <button class="btn btn-ghost btn-icon" type="button" id="themeBtn" aria-label="Tema" title="Tema"><svg class="icon" aria-hidden="true"><use href="#i-monitor"/></svg></button>
-      <button class="btn btn-ghost btn-icon" type="button" id="openGuide" aria-label="Como preencher" title="Como preencher"><svg class="icon" aria-hidden="true"><use href="#i-help"/></svg></button>
+      <button class="btn btn-ghost btn-icon" type="button" id="openGuide" aria-label="Ajuda" title="Ajuda"><svg class="icon" aria-hidden="true"><use href="#i-help"/></svg></button>
       <button class="btn btn-ghost btn-icon" type="button" id="openData" aria-label="Dados e backup" title="Dados e backup"><svg class="icon" aria-hidden="true"><use href="#i-database"/></svg></button>
     </div>
     <div class="tabs-row">
@@ -507,6 +512,7 @@ main.container{padding-top:20px;padding-bottom:64px}
         <button class="btn btn-ghost end" type="button" id="clearBtn">Limpar</button>
       </div>
     </form>
+    <p class="app-disclaimer">Ferramenta de registro, sem respostas ou definições clínicas. Feita para ser usada junto com seu terapeuta. <button class="link" type="button" data-open-guide>Saiba mais</button></p>
   </section>
 
   <!-- HISTÓRICO -->
@@ -544,10 +550,24 @@ main.container{padding-top:20px;padding-bottom:64px}
   <div class="dlg-body">
     <button class="btn btn-ghost btn-icon btn-xs dlg-close" type="button" data-close aria-label="Fechar"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
     <div class="dlg-head">
-      <h2 class="dlg-title" id="guideTitle">Como preencher</h2>
-      <p class="dlg-desc">Pequeno guia de auto‑observação.</p>
+      <h2 class="dlg-title" id="guideTitle">Ajuda</h2>
+      <p class="dlg-desc">O que é, para que serve e como preencher.</p>
     </div>
     <div class="guide">
+      <h3>O que é</h3>
+      <p>Um caderno digital de <b>auto‑observação</b>: você anota episódios do seu dia a dia — o que estava acontecendo, o que você fez, pensou ou sentiu, e o que veio depois.</p>
+      <h3>Para que serve</h3>
+      <p>Para ajudar a perceber, com o tempo, o que se repete nos seus comportamentos e em que situações eles aparecem. Os registros viram material para conversar e analisar <b>junto com seu terapeuta</b>.</p>
+      <div class="notice" role="note">
+        <svg class="icon" aria-hidden="true"><use href="#i-info"/></svg>
+        <div>
+          <b>Importante</b>
+          <p>Este app <b>não dá respostas, diagnósticos, interpretações nem definições clínicas</b>. Ele só organiza o que você escreve; as contagens da aba Padrões são apenas números, não avaliações.</p>
+          <p>Foi pensado para ser usado <b>idealmente com acompanhamento de um(a) terapeuta</b>, que é quem pode interpretar os registros com você. Ele não substitui atendimento profissional. Em caso de crise ou emergência, procure ajuda imediata (no Brasil: CVV 188, SAMU 192).</p>
+        </div>
+      </div>
+      <hr class="separator">
+      <h3>Como funciona</h3>
       <p>Cada episódio é organizado na <b>tríplice contingência</b> — o “ABC”: <b>A</b>mbiente (contexto), <b>B</b>ehavior (comportamento) e <b>C</b>onsequência. O objetivo é encontrar <b>regularidades</b> entre esses eventos, não só contar uma história geral.</p>
       <p>Muitos comportamentos acontecem de forma automática porque, no passado, produziram consequências que tornaram sua repetição mais provável (alívio, atenção, conforto…). O contexto <b>não causa</b> o comportamento, mas sinaliza maior ou menor chance de ele produzir consequências favoráveis.</p>
       <hr class="separator">
@@ -577,7 +597,7 @@ main.container{padding-top:20px;padding-bottom:64px}
       <p>Registre o quanto antes, enquanto os detalhes estão frescos — pode ser curto e completar depois.</p>
       <p>Descreva o que aconteceu de forma concreta, como uma câmera veria, em vez de interpretações gerais (“sempre faço isso”).</p>
       <p>Com o tempo, use a aba <b>Padrões</b> para ver o que se repete: horários, lugares, pessoas, sensações.</p>
-      <p class="foot">Resumo do material “Pequeno Manual de Auto‑Observação”. Esta ferramenta apoia o registro e não substitui o acompanhamento profissional.</p>
+      <p class="foot">Resumo do material “Pequeno Manual de Auto‑Observação”. Ferramenta de apoio ao registro, sem conteúdo clínico; use com acompanhamento terapêutico.</p>
     </div>
   </div>
 </dialog>
