@@ -1,0 +1,12 @@
+{
+  "name": "Registro de Comportamento",
+  "short_name": "Registro",
+  "description": "Auto-observação: contexto, comportamento e consequência. Dados salvos só no dispositivo.",
+  "lang": "pt-BR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f6fb",
+  "theme_color": "#5b4b8a",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

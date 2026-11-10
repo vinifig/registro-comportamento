@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Registro de Comportamento</title>
+<meta name="description" content="Registro de auto-observação (Contexto · Comportamento · Consequência). Dados salvos apenas neste dispositivo.">
+<meta name="theme-color" content="#5b4b8a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+:root{
+  --bg:#f7f6fb; --card:#fff; --text:#1f1d2b; --muted:#6b6880; --line:#e3e0ee; --accent:#5b4b8a; --accent-ink:#fff;
+  --c-data:#e2f3dc; --c-data-ink:#3c7a2a;
+  --c-ctx:#f3d6dc; --c-ctx-ink:#a3324b;
+  --c-comp:#fdf0d3; --c-comp-ink:#a5700d;
+  --c-cons:#d3e0f2; --c-cons-ink:#2f5a9a;
+  --c-int:#ecdcf2; --c-int-ink:#9a2fa8;
+  --star:#c58ad1; --danger:#b3261e;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#15141c; --card:#1f1e29; --text:#ece9f6; --muted:#a29fb5; --line:#33313f; --accent:#a796e0; --accent-ink:#15141c;
+    --c-data:#24331f; --c-data-ink:#9fd68c;
+    --c-ctx:#3a2128; --c-ctx-ink:#f0a2b3;
+    --c-comp:#3a311c; --c-comp-ink:#f0c86e;
+    --c-cons:#1e2b3d; --c-cons-ink:#9cbcea;
+    --c-int:#33213a; --c-int-ink:#e0a4ea;
+    --star:#d9a2e4; --danger:#f2867e;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:env(safe-area-inset-bottom)}
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.wrap{max-width:960px;margin:0 auto;padding:0 16px}
+.top{display:flex;align-items:center;gap:12px;padding:12px 0 8px}
+.top h1{font-size:18px;margin:0;flex:1}
+.top small{color:var(--muted);font-weight:400}
+nav{display:flex;gap:4px;overflow-x:auto;padding-bottom:8px}
+nav button{border:0;background:transparent;color:var(--muted);padding:8px 12px;border-radius:999px;font:inherit;font-size:14px;cursor:pointer;white-space:nowrap}
+nav button[aria-selected=true]{background:var(--accent);color:var(--accent-ink)}
+main{padding:16px 0 48px}
+section[hidden]{display:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+label.f{display:block;margin-bottom:14px}
+label.f>span{display:block;font-weight:600;font-size:14px;margin-bottom:2px}
+label.f>em{display:block;font-style:normal;font-size:13px;color:var(--muted);margin-bottom:6px}
+.tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
+.t-data{background:var(--c-data);color:var(--c-data-ink)}
+.t-ctx{background:var(--c-ctx);color:var(--c-ctx-ink)}
+.t-comp{background:var(--c-comp);color:var(--c-comp-ink)}
+.t-cons{background:var(--c-cons);color:var(--c-cons-ink)}
+.t-int{background:var(--c-int);color:var(--c-int-ink)}
+input,textarea,select{width:100%;font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+textarea{min-height:88px;resize:vertical}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>*{flex:1 1 140px}
+.stars{display:flex;gap:4px;align-items:center}
+.stars button{background:none;border:0;padding:2px;cursor:pointer;font-size:30px;line-height:1;color:var(--line)}
+.stars button.on{color:var(--star)}
+.stars .lbl{margin-left:8px;font-size:14px;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);color:var(--text);padding:10px 14px;border-radius:10px;font:inherit;font-size:15px;cursor:pointer}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.btn.danger{color:var(--danger)}
+.btn.sm{padding:6px 10px;font-size:13px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{border:1px solid var(--line);background:var(--bg);color:var(--text);border-radius:999px;padding:4px 10px;font:inherit;font-size:13px;cursor:pointer}
+.chips button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.entry{border-left:4px solid var(--star)}
+.entry .meta{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.entry .meta b{font-size:15px}
+.entry .grid{display:grid;gap:8px}
+.entry .cell p{margin:4px 0 0;white-space:pre-wrap}
+.entry .tags{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap}
+.entry .tags span{font-size:12px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--muted)}
+.muted{color:var(--muted)}
+.empty{text-align:center;padding:40px 16px;color:var(--muted)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.toolbar input{flex:2 1 200px}
+.toolbar select{flex:1 1 140px;width:auto}
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+.stat div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+.stat b{display:block;font-size:24px}
+.bars{display:grid;gap:6px}
+.bar{display:grid;grid-template-columns:minmax(90px,30%) 1fr 32px;gap:8px;align-items:center;font-size:14px}
+.bar i{display:block;height:12px;border-radius:6px;background:var(--star)}
+.bar span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.guide p{margin:0 0 10px}
+.guide h3{margin:18px 0 6px;font-size:16px}
+.note{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin-top:10px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
+.toast.show{opacity:1}
+@media (min-width:760px){ .entry .grid{grid-template-columns:repeat(3,1fr)} }
+
+/* impressão: tabela no formato da folha original */
+#print{display:none}
+@media print{
+  body{background:#fff;color:#000}
+  header,main{display:none!important}
+  #print{display:block;font:11px/1.35 system-ui,sans-serif}
+  #print h2{text-align:center;font-size:15px;margin:0 0 10px}
+  #print table{width:100%;border-collapse:collapse}
+  #print th{font-size:11px;padding:4px}
+  #print td{border:1.5px solid #000;padding:6px;vertical-align:top;white-space:pre-wrap}
+  #print td.s{border:0;font-size:16px;white-space:nowrap;text-align:center;vertical-align:middle}
+  #print tr{break-inside:avoid}
+  @page{size:A4 landscape;margin:12mm}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="top">
+      <h1>Registro de Comportamento <small>· auto-observação</small></h1>
+    </div>
+    <nav role="tablist">
+      <button role="tab" data-tab="novo" aria-selected="true">＋ Novo</button>
+      <button role="tab" data-tab="lista" aria-selected="false">Registros <span id="count"></span></button>
+      <button role="tab" data-tab="padroes" aria-selected="false">Padrões</button>
+      <button role="tab" data-tab="guia" aria-selected="false">Como preencher</button>
+      <button role="tab" data-tab="dados" aria-selected="false">Dados</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- NOVO -->
+  <section id="tab-novo">
+    <form id="form" class="card" autocomplete="off">
+      <input type="hidden" name="id">
+      <label class="f">
+        <span class="tag t-data">Data</span>
+        <em>A data e, se possível, o horário ou turno em que o comportamento ocorreu.</em>
+        <div class="row">
+          <input type="date" name="date" required>
+          <input type="time" name="time">
+          <select name="shift">
+            <option value="">Turno…</option>
+            <option>Madrugada</option><option>Manhã</option><option>Tarde</option><option>Noite</option>
+          </select>
+        </div>
+      </label>
+      <label class="f">
+        <span class="tag t-ctx">Contexto</span>
+        <em>Eventos relevantes do ambiente: onde, com quem, o que acontecia antes. Inclua propriedades como textura, cor, aroma, sabor, sons…</em>
+        <textarea name="context" placeholder="Ex.: fim do expediente, sala silenciosa, recebi mensagem do chefe pedindo revisão urgente…"></textarea>
+      </label>
+      <label class="f">
+        <span class="tag t-comp">Comportamento</span>
+        <em>O que ocorreu — ações, pensamentos, sentimentos, desejos, alterações no corpo. Fale da intensidade e da duração.</em>
+        <textarea name="behavior" placeholder="Ex.: pensei “não vou dar conta”, coração acelerou por ~10 min, abri o celular e fiquei rolando o feed…"></textarea>
+      </label>
+      <label class="f">
+        <span class="tag t-cons">Consequência</span>
+        <em>O que mudou depois: alterações sensoriais, fisiológicas, emocionais, sociais ou materiais.</em>
+        <textarea name="consequence" placeholder="Ex.: alívio imediato da tensão, mas a tarefa ficou para depois e senti culpa à noite…"></textarea>
+      </label>
+      <div class="f" style="margin-bottom:14px">
+        <span class="tag t-int">Intensidade</span>
+        <em class="muted" style="display:block;font-size:13px;margin:2px 0 6px">Intensidade dos efeitos emocionais (1 a 5).</em>
+        <div class="stars" id="stars" role="radiogroup" aria-label="Intensidade"></div>
+        <input type="hidden" name="intensity" value="0">
+      </div>
+      <label class="f">
+        <span>Marcadores <small class="muted">(opcional)</small></span>
+        <em>Palavras‑chave separadas por vírgula para achar regularidades. Ex.: trabalho, ansiedade, família.</em>
+        <input name="tags" list="tagsList" placeholder="ansiedade, trabalho">
+        <datalist id="tagsList"></datalist>
+      </label>
+      <div class="actions">
+        <button class="btn primary" type="submit" id="saveBtn">Salvar registro</button>
+        <button class="btn" type="button" id="cancelEdit" hidden>Cancelar edição</button>
+        <button class="btn" type="reset" id="clearBtn">Limpar</button>
+      </div>
+      <p class="note">🔒 Tudo fica salvo só neste navegador/dispositivo (localStorage). Nada é enviado para servidor algum. Use a aba <b>Dados</b> para fazer backup.</p>
+    </form>
+  </section>
+
+  <!-- LISTA -->
+  <section id="tab-lista" hidden>
+    <div class="toolbar">
+      <input type="search" id="q" placeholder="Buscar em todos os campos…">
+      <select id="fInt"><option value="">Qualquer intensidade</option><option value="5">★5</option><option value="4">★4 ou mais</option><option value="3">★3 ou mais</option><option value="2">★2 ou mais</option></select>
+      <select id="fTag"><option value="">Todos os marcadores</option></select>
+      <button class="btn" id="printBtn" type="button">🖨️ Imprimir</button>
+    </div>
+    <div id="list"></div>
+  </section>
+
+  <!-- PADRÕES -->
+  <section id="tab-padroes" hidden>
+    <div id="patterns"></div>
+  </section>
+
+  <!-- GUIA -->
+  <section id="tab-guia" hidden>
+    <div class="card guide">
+      <h2 style="margin-top:0">Pequeno guia de auto‑observação</h2>
+      <p>O registro organiza cada episódio na <b>tríplice contingência</b> — o “ABC”: <b>A</b>mbiente (contexto), <b>B</b>ehavior (comportamento) e <b>C</b>onsequência. O objetivo é encontrar <b>regularidades</b> entre esses eventos, em vez de só contar uma história geral sobre o que fazemos.</p>
+      <p>Muitos comportamentos acontecem de forma automática porque, no passado, produziram consequências que tornaram sua repetição mais provável (alívio, atenção, conforto…). O contexto <b>não causa</b> o comportamento, mas sinaliza maior ou menor probabilidade de ele produzir consequências favoráveis.</p>
+      <h3><span class="tag t-data">Data</span></h3>
+      <p>Coloque a data e, se possível, o horário ou turno.</p>
+      <h3><span class="tag t-ctx">Contexto</span></h3>
+      <p>Descreva os eventos relevantes, com propriedades concretas: textura, cor, aroma, sabor, sons, pessoas presentes, o que tinha acabado de acontecer.</p>
+      <h3><span class="tag t-comp">Comportamento</span></h3>
+      <p>Não é só movimento do corpo: <b>pensamentos, sentimentos, desejos e alterações fisiológicas</b> também contam. Mencione intensidade e duração. Às vezes vale descrever uma <b>cadeia</b> — uma sequência de ações/pensamentos em que um puxa o outro (ex.: respiração ofegante → lembrança de uma crise → estresse → ansiedade).</p>
+      <h3><span class="tag t-cons">Consequência</span></h3>
+      <p>O que mudou depois: sensações, corpo, emoções, reações de outras pessoas, coisas materiais. Note o que veio <i>logo em seguida</i> e o que veio mais tarde.</p>
+      <h3><span class="tag t-int">Intensidade</span></h3>
+      <p>Marque de 1 a 5 estrelas a intensidade dos efeitos emocionais.</p>
+      <p class="note">Conteúdo resumido do material “Pequeno Manual de Auto‑Observação”. Esta ferramenta é um apoio ao registro e não substitui o acompanhamento profissional.</p>
+    </div>
+  </section>
+
+  <!-- DADOS -->
+  <section id="tab-dados" hidden>
+    <div class="card">
+      <h3 style="margin-top:0">Backup e exportação</h3>
+      <p class="muted" style="margin-top:0">Os registros ficam apenas neste navegador. Se limpar os dados do navegador ou trocar de aparelho, eles se perdem — exporte um backup de vez em quando.</p>
+      <div class="actions">
+        <button class="btn" id="expJson" type="button">⬇️ Backup (JSON)</button>
+        <button class="btn" id="expCsv" type="button">⬇️ Planilha (CSV)</button>
+        <label class="btn" style="cursor:pointer">⬆️ Restaurar backup<input type="file" id="impJson" accept="application/json,.json" hidden></label>
+      </div>
+      <p class="muted" id="lastBackup" style="font-size:13px"></p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Apagar tudo</h3>
+      <p class="muted" style="margin-top:0">Remove todos os registros deste dispositivo. Não dá para desfazer.</p>
+      <button class="btn danger" id="wipe" type="button">Apagar todos os registros</button>
+    </div>
+  </section>
+</main>
+
+<div id="print"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  const KEY = 'registro-comportamento:v1';
+  const META = 'registro-comportamento:meta';
+  const $ = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+
+  // ---------- storage ----------
+  const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; } };
+  const save = list => { try { localStorage.setItem(KEY, JSON.stringify(list)); return true; } catch { toast('Não foi possível salvar (armazenamento indisponível)'); return false; } };
+  const meta = () => { try { return JSON.parse(localStorage.getItem(META)) || {}; } catch { return {}; } };
+  const setMeta = m => { try { localStorage.setItem(META, JSON.stringify({...meta(), ...m})); } catch {} };
+  let entries = load();
+  try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch {}
+
+  const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const today = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
+  const nowTime = () => new Date().toTimeString().slice(0,5);
+  const shiftOf = t => { if (!t) return ''; const h = +t.slice(0,2); return h < 6 ? 'Madrugada' : h < 12 ? 'Manhã' : h < 18 ? 'Tarde' : 'Noite'; };
+  const fmtDate = d => { if (!d) return ''; const [y,m,dd] = d.split('-'); const wd = new Date(+y, m-1, +dd).toLocaleDateString('pt-BR',{weekday:'short'}); return `${dd}/${m}/${y} · ${wd}`; };
+  const parseTags = s => [...new Set(String(s||'').split(',').map(t => t.trim().toLowerCase()).filter(Boolean))];
+  const sorted = () => [...entries].sort((a,b) => (b.date + (b.time||'')).localeCompare(a.date + (a.time||'')) || b.createdAt - a.createdAt);
+  const starStr = n => '★'.repeat(n) + '☆'.repeat(5 - n);
+  const toast = msg => { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2200); };
+
+  // ---------- tabs ----------
+  const show = name => {
+    $$('nav button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === name));
+    $$('main>section').forEach(s => s.hidden = s.id !== 'tab-' + name);
+    if (name === 'lista') renderList();
+    if (name === 'padroes') renderPatterns();
+    if (name === 'dados') renderBackupInfo();
+    try { sessionStorage.setItem('tab', name); } catch {}
+    window.scrollTo(0,0);
+  };
+  $$('nav button').forEach(b => b.onclick = () => show(b.dataset.tab));
+
+  // ---------- form ----------
+  const form = $('#form');
+  const starsEl = $('#stars');
+  const labels = ['', 'muito leve', 'leve', 'moderada', 'forte', 'muito forte'];
+  for (let i = 1; i <= 5; i++) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = '★'; b.setAttribute('role','radio'); b.setAttribute('aria-label', `${i} — ${labels[i]}`);
+    b.onclick = () => setStars(+form.intensity.value === i ? 0 : i);
+    starsEl.appendChild(b);
+  }
+  const lbl = document.createElement('span'); lbl.className = 'lbl'; starsEl.appendChild(lbl);
+  function setStars(n) {
+    form.intensity.value = n;
+    [...starsEl.querySelectorAll('button')].forEach((b, i) => { b.classList.toggle('on', i < n); b.setAttribute('aria-checked', i + 1 === n); });
+    lbl.textContent = n ? labels[n] : 'toque para marcar';
+  }
+  function resetForm() {
+    form.reset(); form.id.value = '';
+    form.date.value = today(); form.time.value = nowTime(); form.shift.value = shiftOf(form.time.value);
+    setStars(0);
+    $('#saveBtn').textContent = 'Salvar registro'; $('#cancelEdit').hidden = true;
+    clearDraft();
+  }
+  form.time.addEventListener('change', () => { if (form.time.value) form.shift.value = shiftOf(form.time.value); });
+
+  // rascunho (para não perder o que está digitando)
+  const DRAFT = 'registro-comportamento:draft';
+  const fields = ['id','date','time','shift','context','behavior','consequence','intensity','tags'];
+  const saveDraft = () => { try { localStorage.setItem(DRAFT, JSON.stringify(Object.fromEntries(fields.map(f => [f, form[f].value])))); } catch {} };
+  const clearDraft = () => { try { localStorage.removeItem(DRAFT); } catch {} };
+  form.addEventListener('input', saveDraft);
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const d = Object.fromEntries(fields.map(f => [f, form[f].value]));
+    if (!d.context.trim() && !d.behavior.trim() && !d.consequence.trim()) { toast('Preencha ao menos um dos campos'); return; }
+    const rec = { id: d.id || uid(), date: d.date || today(), time: d.time, shift: d.shift, context: d.context.trim(), behavior: d.behavior.trim(), consequence: d.consequence.trim(), intensity: +d.intensity || 0, tags: parseTags(d.tags), updatedAt: Date.now() };
+    const i = entries.findIndex(x => x.id === rec.id);
+    if (i >= 0) entries[i] = { ...entries[i], ...rec }; else entries.push({ ...rec, createdAt: Date.now() });
+    if (save(entries)) { toast(i >= 0 ? 'Registro atualizado' : 'Registro salvo'); resetForm(); updateCount(); updateTagOptions(); show('lista'); }
+  });
+  $('#cancelEdit').onclick = () => { resetForm(); show('lista'); };
+  $('#clearBtn').onclick = e => { e.preventDefault(); const id = form.id.value; resetForm(); if (id) { /* keep editing nothing */ } };
+
+  function edit(id) {
+    const r = entries.find(x => x.id === id); if (!r) return;
+    form.id.value = r.id; form.date.value = r.date; form.time.value = r.time || ''; form.shift.value = r.shift || '';
+    form.context.value = r.context; form.behavior.value = r.behavior; form.consequence.value = r.consequence;
+    form.tags.value = (r.tags||[]).join(', '); setStars(r.intensity || 0);
+    $('#saveBtn').textContent = 'Salvar alterações'; $('#cancelEdit').hidden = false;
+    show('novo');
+  }
+  function remove(id) {
+    if (!confirm('Apagar este registro? Não dá para desfazer.')) return;
+    entries = entries.filter(x => x.id !== id); save(entries); updateCount(); renderList(); toast('Registro apagado');
+  }
+  function duplicate(id) {
+    const r = entries.find(x => x.id === id); if (!r) return;
+    resetForm();
+    form.context.value = r.context; form.tags.value = (r.tags||[]).join(', ');
+    show('novo'); form.behavior.focus(); toast('Contexto copiado para um novo registro');
+  }
+
+  // ---------- list ----------
+  const allTags = () => { const m = {}; entries.forEach(e => (e.tags||[]).forEach(t => m[t] = (m[t]||0) + 1)); return Object.entries(m).sort((a,b) => b[1]-a[1]); };
+  function updateTagOptions() {
+    const tags = allTags();
+    $('#tagsList').innerHTML = tags.map(([t]) => `<option value="${esc(t)}">`).join('');
+    const cur = $('#fTag').value;
+    $('#fTag').innerHTML = '<option value="">Todos os marcadores</option>' + tags.map(([t,n]) => `<option value="${esc(t)}">${esc(t)} (${n})</option>`).join('');
+    $('#fTag').value = tags.some(([t]) => t === cur) ? cur : '';
+  }
+  const updateCount = () => { $('#count').textContent = entries.length ? `(${entries.length})` : ''; };
+  function filtered() {
+    const q = $('#q').value.trim().toLowerCase(), mi = +$('#fInt').value || 0, tg = $('#fTag').value;
+    return sorted().filter(e => (!mi || e.intensity >= mi) && (!tg || (e.tags||[]).includes(tg)) &&
+      (!q || [e.context, e.behavior, e.consequence, e.shift, (e.tags||[]).join(' '), fmtDate(e.date)].join(' ').toLowerCase().includes(q)));
+  }
+  function renderList() {
+    const list = filtered();
+    if (!entries.length) { $('#list').innerHTML = `<div class="empty">Nenhum registro ainda.<br><br><button class="btn primary" onclick="document.querySelector('[data-tab=novo]').click()">Fazer o primeiro registro</button></div>`; return; }
+    if (!list.length) { $('#list').innerHTML = `<div class="empty">Nada encontrado com esses filtros.</div>`; return; }
+    $('#list').innerHTML = list.map(e => `
+      <article class="card entry">
+        <div class="meta">
+          <b>${esc(fmtDate(e.date))}${e.time ? ' · ' + esc(e.time) : ''}${e.shift ? ' · ' + esc(e.shift) : ''}</b>
+          <span style="color:var(--star);font-size:18px" title="Intensidade ${e.intensity}/5">${starStr(e.intensity||0)}</span>
+        </div>
+        <div class="grid">
+          <div class="cell"><span class="tag t-ctx">Contexto</span><p>${esc(e.context) || '<span class="muted">—</span>'}</p></div>
+          <div class="cell"><span class="tag t-comp">Comportamento</span><p>${esc(e.behavior) || '<span class="muted">—</span>'}</p></div>
+          <div class="cell"><span class="tag t-cons">Consequência</span><p>${esc(e.consequence) || '<span class="muted">—</span>'}</p></div>
+        </div>
+        ${(e.tags||[]).length ? `<div class="tags">${e.tags.map(t => `<span>#${esc(t)}</span>`).join('')}</div>` : ''}
+        <div class="actions" style="margin-top:12px">
+          <button class="btn sm" data-act="edit" data-id="${e.id}">Editar</button>
+          <button class="btn sm" data-act="dup" data-id="${e.id}" title="Novo registro com o mesmo contexto">Repetir contexto</button>
+          <button class="btn sm danger" data-act="del" data-id="${e.id}">Apagar</button>
+        </div>
+      </article>`).join('');
+  }
+  $('#list').addEventListener('click', e => {
+    const b = e.target.closest('button[data-act]'); if (!b) return;
+    ({ edit, del: remove, dup: duplicate })[b.dataset.act](b.dataset.id);
+  });
+  ['#q','#fInt','#fTag'].forEach(s => $(s).addEventListener('input', renderList));
+
+  // ---------- print ----------
+  $('#printBtn').onclick = () => {
+    const list = filtered().reverse();
+    $('#print').innerHTML = `<h2>REGISTRO DO COMPORTAMENTO</h2><table><thead><tr><th style="width:13%">DATA</th><th>CONTEXTO</th><th>COMPORTAMENTO</th><th>CONSEQUÊNCIA</th><th style="width:12%">INTENSIDADE</th></tr></thead><tbody>${
+      list.map(e => `<tr><td>${esc(fmtDate(e.date))}${e.time ? '<br>' + esc(e.time) : ''}${e.shift ? '<br>' + esc(e.shift) : ''}</td><td>${esc(e.context)}</td><td>${esc(e.behavior)}</td><td>${esc(e.consequence)}</td><td class="s">${starStr(e.intensity||0)}</td></tr>`).join('')
+    }</tbody></table>`;
+    window.print();
+  };
+
+  // ---------- patterns ----------
+  const STOP = new Set('a o e é de da do das dos em no na nos nas um uma uns umas que se para pra por com sem me mi mim meu minha meus minhas eu ele ela eles elas isso isto esse essa este esta ao aos à às mas mais muito muita pouco como quando onde foi era fui estava estou tava ter tinha tive ser ficar fiquei fez fiz não sim já ainda também lhe te seu sua seus suas nem ou até depois antes então só vez há ha the de lá aqui ali porque pois sobre entre num numa pelo pela pelos pelas tudo nada algo algum alguma coisa'.split(' '));
+  const words = txt => (txt||'').toLowerCase().normalize('NFC').match(/[\p{L}]{3,}/gu)?.filter(w => !STOP.has(w)) || [];
+  const top = (arr, n=8) => { const m = {}; arr.forEach(w => m[w] = (m[w]||0) + 1); return Object.entries(m).filter(([,c]) => c > 1).sort((a,b) => b[1]-a[1]).slice(0,n); };
+  const bars = (rows, emptyMsg) => { if (!rows.length) return `<p class="muted">${emptyMsg}</p>`; const mx = Math.max(...rows.map(r => r[1])); return `<div class="bars">${rows.map(([k,v]) => `<div class="bar"><span title="${esc(k)}">${esc(k)}</span><i style="width:${Math.max(4, v/mx*100)}%"></i><span>${typeof v === 'number' && v % 1 ? v.toFixed(1) : v}</span></div>`).join('')}</div>`; };
+  function renderPatterns() {
+    const el = $('#patterns');
+    if (entries.length < 2) { el.innerHTML = `<div class="empty">Faça alguns registros para começar a ver regularidades.</div>`; return; }
+    const withInt = entries.filter(e => e.intensity);
+    const avg = withInt.length ? withInt.reduce((s,e) => s + e.intensity, 0) / withInt.length : 0;
+    const d7 = new Date(); d7.setDate(d7.getDate() - 7); const since = d7.toISOString().slice(0,10);
+    const shifts = ['Madrugada','Manhã','Tarde','Noite'].map(s => [s, entries.filter(e => e.shift === s).length]).filter(r => r[1]);
+    const shiftAvg = ['Madrugada','Manhã','Tarde','Noite'].map(s => { const l = entries.filter(e => e.shift === s && e.intensity); return [s, l.length ? l.reduce((a,e) => a + e.intensity, 0) / l.length : 0]; }).filter(r => r[1]);
+    const wdNames = ['dom','seg','ter','qua','qui','sex','sáb'];
+    const wd = wdNames.map((n,i) => [n, entries.filter(e => { const [y,m,d] = e.date.split('-'); return new Date(+y,m-1,+d).getDay() === i; }).length]);
+    const tagAvg = allTags().slice(0,10).map(([t]) => { const l = entries.filter(e => (e.tags||[]).includes(t) && e.intensity); return [t, l.length ? l.reduce((a,e) => a + e.intensity, 0) / l.length : 0]; }).filter(r => r[1]).sort((a,b) => b[1]-a[1]);
+    const intDist = [5,4,3,2,1].map(n => ['★'.repeat(n), entries.filter(e => e.intensity === n).length]);
+    el.innerHTML = `
+      <div class="stat">
+        <div><span class="muted">Registros</span><b>${entries.length}</b></div>
+        <div><span class="muted">Últimos 7 dias</span><b>${entries.filter(e => e.date >= since).length}</b></div>
+        <div><span class="muted">Intensidade média</span><b>${avg ? avg.toFixed(1) : '—'}</b></div>
+        <div><span class="muted">Intensos (★4–5)</span><b>${entries.filter(e => e.intensity >= 4).length}</b></div>
+      </div>
+      <div class="card"><h3 style="margin-top:0">Distribuição da intensidade</h3>${bars(intDist, '')}</div>
+      <div class="card"><h3 style="margin-top:0">Por turno</h3>${bars(shifts, 'Sem turnos marcados.')}<h4 class="muted" style="font-weight:600;margin:14px 0 6px">Intensidade média por turno</h4>${bars(shiftAvg, 'Sem dados.')}</div>
+      <div class="card"><h3 style="margin-top:0">Por dia da semana</h3>${bars(wd, '')}</div>
+      <div class="card"><h3 style="margin-top:0">Marcadores · intensidade média</h3>${bars(tagAvg, 'Use marcadores nos registros para ver esta comparação.')}</div>
+      <div class="card"><h3 style="margin-top:0">Palavras que se repetem</h3>
+        <p class="muted" style="margin-top:0;font-size:14px">Termos que aparecem mais de uma vez em cada coluna — pistas de regularidade.</p>
+        <h4 style="margin:10px 0 6px"><span class="tag t-ctx">Contexto</span></h4>${bars(top(entries.flatMap(e => words(e.context))), 'Nada se repete ainda.')}
+        <h4 style="margin:14px 0 6px"><span class="tag t-comp">Comportamento</span></h4>${bars(top(entries.flatMap(e => words(e.behavior))), 'Nada se repete ainda.')}
+        <h4 style="margin:14px 0 6px"><span class="tag t-cons">Consequência</span></h4>${bars(top(entries.flatMap(e => words(e.consequence))), 'Nada se repete ainda.')}
+      </div>`;
+  }
+
+  // ---------- data ----------
+  const download = (name, text, type) => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], {type})); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); };
+  $('#expJson').onclick = () => { download(`registro-comportamento-${today()}.json`, JSON.stringify({ app: 'registro-comportamento', version: 1, exportedAt: new Date().toISOString(), entries }, null, 2), 'application/json'); setMeta({ lastBackup: Date.now() }); renderBackupInfo(); };
+  $('#expCsv').onclick = () => {
+    const q = v => `"${String(v ?? '').replace(/"/g,'""')}"`;
+    const rows = [['Data','Horário','Turno','Contexto','Comportamento','Consequência','Intensidade','Marcadores']].concat(sorted().reverse().map(e => [e.date, e.time, e.shift, e.context, e.behavior, e.consequence, e.intensity, (e.tags||[]).join(', ')]));
+    download(`registro-comportamento-${today()}.csv`, '﻿' + rows.map(r => r.map(q).join(';')).join('\r\n'), 'text/csv');
+  };
+  $('#impJson').onchange = async ev => {
+    const f = ev.target.files[0]; ev.target.value = ''; if (!f) return;
+    try {
+      const data = JSON.parse(await f.text()); const inc = Array.isArray(data) ? data : data.entries;
+      if (!Array.isArray(inc)) throw 0;
+      const valid = inc.filter(x => x && typeof x === 'object' && x.id && x.date).map(x => ({ id: String(x.id), date: String(x.date).slice(0,10), time: String(x.time||'').slice(0,5), shift: String(x.shift||''), context: String(x.context||''), behavior: String(x.behavior||''), consequence: String(x.consequence||''), intensity: Math.max(0, Math.min(5, +x.intensity || 0)), tags: Array.isArray(x.tags) ? x.tags.map(String) : [], createdAt: +x.createdAt || Date.now(), updatedAt: +x.updatedAt || Date.now() }));
+      const map = new Map(entries.map(e => [e.id, e])); let added = 0, upd = 0;
+      valid.forEach(v => { const cur = map.get(v.id); if (!cur) { map.set(v.id, v); added++; } else if ((v.updatedAt||0) > (cur.updatedAt||0)) { map.set(v.id, v); upd++; } });
+      if (!confirm(`Restaurar backup: ${added} novo(s), ${upd} atualizado(s). Registros existentes são mantidos. Continuar?`)) return;
+      entries = [...map.values()]; save(entries); updateCount(); updateTagOptions(); toast('Backup restaurado');
+    } catch { toast('Arquivo inválido'); }
+  };
+  $('#wipe').onclick = () => {
+    if (!entries.length) return toast('Não há registros');
+    if (!confirm(`Apagar TODOS os ${entries.length} registros deste dispositivo? Não dá para desfazer.`)) return;
+    if (prompt('Digite APAGAR para confirmar') !== 'APAGAR') return;
+    entries = []; save(entries); updateCount(); updateTagOptions(); toast('Registros apagados');
+  };
+  function renderBackupInfo() {
+    const lb = meta().lastBackup;
+    $('#lastBackup').textContent = lb ? `Último backup: ${new Date(lb).toLocaleString('pt-BR')}` : 'Nenhum backup feito ainda neste dispositivo.';
+  }
+
+  // ---------- init ----------
+  resetForm();
+  try { const dr = JSON.parse(localStorage.getItem(DRAFT)); if (dr) { fields.forEach(f => { if (dr[f] != null) form[f].value = dr[f]; }); setStars(+dr.intensity || 0); if (dr.id) { $('#saveBtn').textContent = 'Salvar alterações'; $('#cancelEdit').hidden = false; } } } catch {}
+  updateCount(); updateTagOptions();
+  let start = 'novo'; try { start = sessionStorage.getItem('tab') || 'novo'; } catch {}
+  show(start);
+  window.addEventListener('storage', e => { if (e.key === KEY) { entries = load(); updateCount(); updateTagOptions(); } });
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+})();
+</script>
+</body>
+</html>
