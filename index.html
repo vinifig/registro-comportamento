@@ -14,7 +14,13 @@ document.querySelector('meta[name=theme-color]').setAttribute('content',d?'#0909
 </script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icon.svg">
+<link rel="icon" href="icons/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" sizes="180x180">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Registro">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="application-name" content="Registro">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -241,6 +247,8 @@ main.container{padding-top:20px;padding-bottom:64px}
 .guide .notice>.icon{margin-top:3px;color:hsl(var(--foreground))}
 .guide .notice>div{display:grid;gap:6px}
 .link{background:none;border:0;padding:0;font:inherit;color:hsl(var(--foreground));text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.install-steps{display:grid;gap:4px}
+.install-steps ol{margin:0;padding-left:18px;display:grid;gap:2px}
 .app-disclaimer{margin:16px 0 0;font-size:12px;line-height:1.5;color:hsl(var(--muted-foreground));text-align:center}
 .guide .example{border:1px solid hsl(var(--border));border-radius:var(--radius);padding:12px 14px;display:grid;gap:8px;background:hsl(var(--muted) / .5)}
 .guide .example dt{font-size:12px;font-weight:600;color:hsl(var(--muted-foreground))}
@@ -598,6 +606,7 @@ main.container{padding-top:20px;padding-bottom:64px}
       <h3>Dicas</h3>
       <p>Registre o quanto antes, enquanto os detalhes estão frescos — pode ser curto e completar depois.</p>
       <p>Descreva o que aconteceu de forma concreta, como uma câmera veria, em vez de interpretações gerais (“sempre faço isso”).</p>
+      <p>Dá para instalar como app no celular ou no computador: veja as instruções em <b>Dados</b> (ícone de banco de dados no topo).</p>
       <p>Com o tempo, use a aba <b>Padrões</b> para ver o que se repete: horários, lugares, pessoas, sensações.</p>
       <p class="foot">Resumo do material “Pequeno Manual de Auto‑Observação”. Ferramenta de apoio ao registro, sem conteúdo clínico; use com acompanhamento terapêutico.</p>
     </div>
@@ -621,6 +630,12 @@ main.container{padding-top:20px;padding-bottom:64px}
       <p class="hint" id="lastBackup"></p>
     </div>
     <hr class="separator">
+    <div class="group" id="installGroup">
+      <p class="group-title">Instalar como app</p>
+      <button class="btn btn-outline btn-block" id="installBtn" type="button" hidden><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>Instalar app</button>
+      <div class="hint install-steps" id="installHelp"></div>
+    </div>
+    <hr class="separator" id="installSep">
     <div class="group">
       <p class="group-title">Zona de perigo</p>
       <button class="btn btn-outline danger btn-block" id="wipe" type="button"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg>Apagar todos os registros</button>
@@ -683,6 +698,30 @@ main.container{padding-top:20px;padding-bottom:64px}
   if (mq) (mq.addEventListener ? mq.addEventListener('change', () => applyTheme(getTheme())) : mq.addListener(() => applyTheme(getTheme())));
   window.addEventListener('storage', e => { if (e.key === THEME) applyTheme(getTheme()); });
   applyTheme(getTheme());
+  // ---------- instalação (Chrome/Edge/Android: prompt nativo; Safari: instruções) ----------
+  (() => {
+    const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+    const grp = document.getElementById('installGroup'), sep = document.getElementById('installSep');
+    const btn = document.getElementById('installBtn'), help = document.getElementById('installHelp');
+    if (standalone) { grp.hidden = true; sep.hidden = true; return; }
+    const ua = navigator.userAgent;
+    const ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const safari = /^((?!chrome|android|crios|fxios|edg).)*safari/i.test(ua);
+    let html;
+    if (ios) html = '<span>No iPhone/iPad (Safari):</span><ol><li>Toque em <b>Compartilhar</b> (quadrado com seta ↑).</li><li>Escolha <b>Adicionar à Tela de Início</b>.</li><li>Toque em <b>Adicionar</b>.</li></ol>';
+    else if (safari) html = '<span>No Safari do Mac:</span><ol><li>Menu <b>Arquivo</b> → <b>Adicionar ao Dock…</b></li><li>Confirme em <b>Adicionar</b>.</li></ol>';
+    else html = '<span>No Chrome/Edge: use o botão acima ou o ícone de instalar na barra de endereço. No Android: menu ⋮ → <b>Instalar app</b> / <b>Adicionar à tela inicial</b>.</span>';
+    help.innerHTML = html + '<span>Os registros continuam só neste navegador/dispositivo — o app instalado usa os mesmos dados do site neste aparelho.</span>';
+    let deferred = null;
+    window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; btn.hidden = false; });
+    btn.addEventListener('click', async () => {
+      if (!deferred) return;
+      deferred.prompt();
+      const { outcome } = await deferred.userChoice; deferred = null; btn.hidden = true;
+      if (outcome === 'accepted') toast('App instalado');
+    });
+    window.addEventListener('appinstalled', () => { btn.hidden = true; toast('App instalado'); });
+  })();
   const meta = () => { try { return JSON.parse(localStorage.getItem(META)) || {}; } catch { return {}; } };
   const setMeta = m => { try { localStorage.setItem(META, JSON.stringify({...meta(), ...m})); } catch {} };
   let entries = load();
